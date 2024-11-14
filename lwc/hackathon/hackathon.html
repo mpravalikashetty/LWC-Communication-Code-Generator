@@ -1,0 +1,98 @@
+<!--
+  @description       : hackathon
+-->
+<template>
+  <lightning-card>
+    <div class="container">
+      <div class="left-pane">
+        <lightning-card icon-name="standard:tree">
+          <div slot="title" style="margin-left:70px;background-color:#91d7f2;padding-right:30px;padding-left:20px;padding-top:5px;padding-bottom:5px">LWC Communication Code Generator</div>
+          <div class="slds-m-around_medium row-input">
+            <lightning-input label="Enter Component Name" style="font-weight:500;font-size:large" value={componentName}
+              onchange={handleComponentNameChange}></lightning-input>
+            <lightning-button style="margin-top:27px;" label="Add Component" onclick={addComponent}
+              class="slds-m-top_small"></lightning-button>
+          </div>
+          <template if:true={errorMessage}>
+            <p class="error-message" style="color:red;margin-left:15px">{errorMessage}</p>
+          </template>
+          <hr>
+          <div class="slds-m-around_medium">
+            <lightning-combobox label="Select Parent Component" style="font-weight:500;font-size:small"  value={parentComponent} options={componentOptions}
+              onchange={handleParentChange}></lightning-combobox>
+            <lightning-combobox label="Select Child Component" style="font-weight:500;font-size:small"  value={childComponent} options={filteredComponentOptions}
+              onchange={handleChildChange}></lightning-combobox>
+          </div>
+          <div class="slds-m-around_medium row-input">
+            <lightning-input label="Enter Parameter" style="font-weight:500;font-size:large"  value={param} onchange={handleParamChange} placeholder="Enter param names for parent-child communication"></lightning-input><br />
+            <lightning-button style="margin-top:27px;" label="Add Parameter" onclick={addParam}
+              class="slds-m-top_small"></lightning-button>
+          </div>
+          <div if:true={params.length} class="slds-m-top_small">
+            <p style="margin-left:50px">Parameters: {params}</p>
+          </div>
+          <div class="slds-m-around_medium row-input">
+            <lightning-input label="Enter Event Name" style="font-weight:500;font-size:large"  value={eventName} onchange={handleEventChange} placeholder="Enter event names for child-parent communication"></lightning-input>
+            <lightning-button style="margin-top:27px;" label="Add Event" onclick={addEvent}
+              class="slds-m-top_small"></lightning-button>
+          </div>
+          <div if:true={events.length} class="slds-m-top_small">
+            <p style="margin-left:50px">Events: {events}</p>
+          </div>
+          <div class="slds-m-around_medium">
+            <lightning-button label="Add Relationship" onclick={addRelationship}
+              class="slds-m-top_small"></lightning-button>
+            <div class="center-button">
+              <lightning-button variant="brand-outline" label="Generate Code" onclick={generateCode}
+                class="generate-code-btn slds-m-top_small" stretch style="width: 180px"></lightning-button>
+            </div>
+          </div>
+        </lightning-card>
+      </div>
+      <div class="right-pane">
+        <lightning-card>
+          <div slot="title" style="margin-left:200px;background-color:#91d7f2;padding-top:5px;padding-bottom:5px;padding-right:40px;padding-left:30px;">Tree Structure</div>
+          <template for:each={tree} for:item="node">
+            <div key={node.name} class="parent-node">
+              <div class="component-parent">
+                <p>{node.name}</p></div>
+              <template if:true={node.children} class="node">
+                <template for:each={node.children} for:item="child">
+                  <div key={child.name} class="node slds-m-left_medium">
+                    <div class="component-box">
+                      <p>{child.name} (Params: {child.params}, Events: {child.events})</p>
+                    </div>
+                  </div>
+                </template>
+              </template>
+            </div>
+          </template>
+        </lightning-card>
+      </div>
+    </div>
+    <template if:true={generatedCode}>
+      <lightning-card>
+        <div class="solid-line"></div>
+        <div slot="title" style="margin-left:400px;background-color:#91d7f2">*************** Generated Code ***************</div>
+        <lightning-tabset class="styled-tabset" variant="scoped">
+          <template for:each={componentCodes} for:item="code">
+            <lightning-tab key={code.component} label={code.component} class="styled-tab">
+              <lightning-tabset>
+                <lightning-tab label="HTML" class="styled-tab-content">
+                  <pre class="formatted-code">{code.html}</pre>
+                  <lightning-button label="Copy HTML" onclick={copyHtmlCode} data-code={code.html}></lightning-button>
+                  <span class={messageClass}>{message}</span>
+                </lightning-tab>
+                <lightning-tab label="JS" class="styled-tab-content">
+                  <pre class="formatted-code">{code.js}</pre>
+                  <lightning-button label="Copy JS" onclick={copyJsCode} data-code={code.js}></lightning-button>
+                  <span class={messageClassJS}>{messageJS}</span>
+                </lightning-tab>
+              </lightning-tabset>
+            </lightning-tab>
+          </template>
+        </lightning-tabset>
+      </lightning-card>
+    </template>
+  </lightning-card>
+</template>
